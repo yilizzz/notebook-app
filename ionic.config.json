@@ -1,0 +1,7 @@
+{
+  "name": "notebook",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
