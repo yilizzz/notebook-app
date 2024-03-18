@@ -23,7 +23,7 @@ export const useNoteStore = create<noteState>()(
     persist(
         (set) => ({
             notes: [],
-            noteTagOptions: ["Urgent", "Important", "Stupid"],
+            noteTagOptions: ["Urgent", "Important", "Interesting"],
             updateNote: (updatedNote) => set((state) => {
 
 
