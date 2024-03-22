@@ -23,15 +23,37 @@ import { Toggle } from "@/components/ui/toggle"
 function NotePage() {
 
     const { id } = useParams<{ id: string; }>();
-    const noteList = useNoteStore((state) => state.notes)
-    const currentNote = useMemo(() => noteList.find((note) => note.id === id), [noteList])
-    // If it's a empty note, show its createdAt instead of updatedAt
-    const createdAt = currentNote?.createdAt
+
     const updateNoteStore = useNoteStore((state) => state.updateNote)
-    const [content, setContent] = useState<string>(currentNote ? currentNote.content : '')
-    const [title, setTitle] = useState<string>(currentNote ? currentNote.title : '')
-    const [updatedAt, setUpdatedAt] = useState<string>(currentNote ? currentNote.updatedAt : '')
-    const [tagsChoosed, setTagsChoosed] = useState<Array<string>>((currentNote ? currentNote.tags : []))
+
+    const [content, setContent] = useState<string | null>(null)
+    const [title, setTitle] = useState<string>("")
+    const [createdAt, setCreatedAt] = useState<string>("")
+    const [updatedAt, setUpdatedAt] = useState<string>("")
+    const [tagsChoosed, setTagsChoosed] = useState<Array<string>>([])
+
+    const readNote = async () => {
+
+        const note = await Filesystem.readFile({
+            path: `notes/${id}.json`,
+            directory: Directory.Data,
+            encoding: Encoding.UTF8,
+        });
+
+        const noteObj = JSON.parse(note.data)
+
+        setTitle(noteObj.title)
+        setContent(noteObj.content)
+        setCreatedAt(noteObj.createdAt)
+        setUpdatedAt(noteObj.updatedAt)
+        setTagsChoosed(noteObj.tags)
+
+    };
+    useEffect(() => {
+        readNote()
+    }, [])
+
+
     const [contentEdited, setContentEdited] = useState(false)
 
     const tagOptions = useNoteStore((state) => state.noteTagOptions)
@@ -39,18 +61,19 @@ function NotePage() {
 
     const updateNote = async (id: string) => {
 
-        const thisNote = noteList.find((item) => item.id === id)
-        const createdAtInfo = thisNote?.createdAt;
         const timeNowString = dayjs().toString()
         setUpdatedAt(timeNowString)
-        const infoNote = { id: id, title: title, content: content, tags: tagsChoosed, updatedAt: timeNowString, createdAt: createdAtInfo }
-        updateNoteStore(infoNote)
+
+        const infoNoteForStore = { id: id, title: title, tags: tagsChoosed, updatedAt: timeNowString, createdAt: createdAt }
+        const infoNote = { ...infoNoteForStore, content: content }
+
+        updateNoteStore(infoNoteForStore)
 
         const stringInfoNote = JSON.stringify(infoNote)
         await Filesystem.writeFile({
             path: `notes/${id}.json`,
             data: stringInfoNote,
-            directory: Directory.Documents,
+            directory: Directory.Data,
             encoding: Encoding.UTF8,
             recursive: true
         });
@@ -61,17 +84,11 @@ function NotePage() {
         if (contentEdited) {
             updateNote(id);
         }
+    }, [title, tagsChoosed, content, contentEdited]);
 
-    }, [title, content, tagsChoosed, contentEdited]);
-    // useEffect(() => {
-    //     updateNote(id);
-    // }, [content]);
-    // useEffect(() => {
-    //     updateNote(id);
-    // }, [tagsChoosed]);
 
     const handleTagClick = async (tag: string) => {
-        const isTagSelected = tagsChoosed.includes(tag);
+        const isTagSelected = tagsChoosed ? tagsChoosed.includes(tag) : false;
         // type tagsList= Array<string>
         let tagsList: string[]
         const updatedTagsChoosed = (isTagSelected: boolean) => {
@@ -86,9 +103,10 @@ function NotePage() {
         updatedTagsChoosed(isTagSelected)
         setTagsChoosed(tagsList);
         setContentEdited(true)
-        // updateNote(id);
+
 
     }
+
     return <IonPage id="main-content">
         <IonHeader>
             <IonToolbar>
@@ -100,24 +118,26 @@ function NotePage() {
         </IonHeader>
         <IonContent className="ion-padding">
 
-            <div className="flex flex-row items-end gap-3 ion-padding-top ion-padding-bottom">
-                <IonLabel className="font-bold text-2xl">Title</IonLabel>
-                <IonLabel className="text-sm">Updated At</IonLabel>
-                <IonText><p className="text-sm">{dayjs(updatedAt ? updatedAt : createdAt).format('YYYY-MM-DD HH:mm:ss')}</p></IonText>
+            <div className="flex flex-row items-end gap-2 text-sm">
+                <IonText >{updatedAt ? "Updated at" : "Created at"}</IonText>
+                <IonText>{dayjs(updatedAt ? updatedAt : createdAt).format('YYYY-MM-DD HH:mm:ss')}</IonText>
             </div>
-            <Input
-                value={title}
-                onChange={async (e) => {
-                    setTitle(e.target.value);
-                    // updateNote(id);
-                    setContentEdited(true)
-                }
-                } />
 
+            <div className="flex flex-row justify-start items-center ion-padding-top max-[400px]:flex-col max-[400px]:items-start">
+                <IonText className="font-bold mr-2">Title</IonText>
+                <Input
+                    value={title}
+                    onChange={async (e) => {
+                        setTitle(e.target.value);
+                        setContentEdited(true)
+
+                    }
+                    } />
+            </div>
             <ToggleGroup type="multiple" className="flex-row justify-start ion-padding-top">
                 {tagOptions?.map((tag, index) => {
                     return (<>
-                        <Toggle key={index} pressed={tagsChoosed.includes(tag)} onClick={() => handleTagClick(tag)}>
+                        <Toggle key={index} pressed={tagsChoosed?.includes(tag)} onClick={() => handleTagClick(tag)}>
                             <span key={index} className="text-orange-600">{tag}</span>
                         </Toggle>
                     </>
@@ -125,20 +145,24 @@ function NotePage() {
                 })}
             </ToggleGroup>
 
-            <CKEditor
-                editor={ClassicEditor}
+            {typeof content === 'string' && (
+                <CKEditor
+                    editor={ClassicEditor}
 
-                config={{
-                    toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', '|', 'undo', 'redo']
-                }}
-                data={content}
-                onChange={async (event, editor) => {
-                    const text = editor.getData()
-                    setContent(text)
-                    setContentEdited(true)
-                    // updateNote(id);
-                }}
-            />
+                    config={{
+                        toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', '|', 'undo', 'redo']
+                    }}
+                    data={content}
+
+                    onChange={async (event, editor) => {
+                        const text = editor.getData()
+                        setContent(text)
+                        setContentEdited(true)
+
+                    }}
+
+                />
+            )}
         </IonContent>
     </IonPage>
 

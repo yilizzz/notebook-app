@@ -1,28 +1,15 @@
-import { IonButtons, IonContent, IonHeader, IonMenu, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { useParams } from 'react-router';
-import ExploreContainer from '../components/ExploreContainer';
+import { CreateNewNoteButton } from '../components/CreateNewNoteButton';
+import { NoteList } from '../components/NoteList';
 
-
-import Menu from '../components/Menu';
 const Page: React.FC = () => {
 
   const { name } = useParams<{ name: string; }>();
 
   return (
     <>
-      {/* <IonMenu contentId="main-content">
-        hello
-      </IonMenu> */}
-      {/* <Menu></Menu> */}
       <IonPage id="main-content" >
-        {/* <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonTitle>{name}</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
         <IonHeader>
           <IonToolbar color="black">
             <IonButtons slot="start">
@@ -31,17 +18,13 @@ const Page: React.FC = () => {
             <IonTitle>Menu</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">Tap the button in the toolbar to open the menu.</IonContent>
-
-        {/* <IonContent fullscreen>
-          <IonHeader collapse="condense">
-            <IonToolbar>
-              <IonTitle size="large">{name}</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <ExploreContainer name={name} />
-
-        </IonContent> */}
+        <IonContent className="ion-padding">
+          {/* <Button onClick={createNewNote}>NEW NOTE</Button> */}
+          <div className='flex flex-col justify-start items-center h-5/6 mt-5 '>
+            <CreateNewNoteButton handleAfterCreation={() => { }} />
+            <NoteList listPostion="page" toggleMenu={() => { }}></NoteList>
+          </div>
+        </IonContent>
       </IonPage>
     </>
   );

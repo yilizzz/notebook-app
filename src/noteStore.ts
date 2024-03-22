@@ -5,7 +5,6 @@ import { persist } from 'zustand/middleware'
 interface noteStateItems {
     id: string,
     title: string,
-    content: string,
     createdAt: string,
     tags: Array<string>,
     updatedAt: string
@@ -32,9 +31,8 @@ export const useNoteStore = create<noteState>()(
                     const updatedNotes = [...state.notes];
                     const existingNote = updatedNotes[indexOfToUpdate];
 
-                    // Update fields except createdAt (title, tags, content, updatedAt )
+                    // Update fields except createdAt (title, tags, updatedAt )
                     existingNote.tags = updatedNote.tags;
-                    existingNote.content = updatedNote.content;
                     existingNote.title = updatedNote.title;
                     existingNote.updatedAt = updatedNote.updatedAt;
 

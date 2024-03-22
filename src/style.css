@@ -33,6 +33,8 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+    --shadow-color: rgba(227, 144, 96, 0.855);
+    --tags-bg-color: rgba(250, 237, 230, 0.945);
   }
 
   .dark {
@@ -67,13 +69,12 @@
 }
 
 ion-menu::part(backdrop) {
-  background-color: rgba(227, 144, 96, 0.855);
+  background-color: var(--shadow-color)
 }
 
 ion-menu::part(container) {
   border-radius: 0 0 0 0;
-
-  box-shadow: 4px 0px 16px rgba(227, 144, 96, 0.855);
+  box-shadow: 4px 0px 16px var(--shadow-color)
 }
 
 .ck {
@@ -84,8 +85,123 @@ ion-menu::part(container) {
   }
 
   a {
-    text-decoration: underline
+    text-decoration: underline !important
   }
+
+  h2,
+  h3,
+  h4 {
+    margin-top: 16px !important;
+    margin-bottom: 10px !important;
+    font-weight: 500 !important;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.375rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width:340px) {
+  .menu-inner {
+    --width: 130px !important;
+  }
+
+}
+
+.nkPressed {
+  background-color: black !important;
+}
+
+.updateAtLabel {
+  cursor: pointer;
+  font-size: smaller !important;
+  color: #757575 !important;
+  width: 100%;
+}
+
+.bg-muted {
+  background-color: var(--tags-bg-color);
+}
+
+.p-1 {
+  padding: 3rem;
+}
+
+/* .divTagsCol,
+.divTagsRow {
+
+  display: flex !important;
+  width: 100%;
+  gap: 0.5rem;
+  background-color: inherit;
+  border-top: 1px;
+}
+
+.divTagsCol {
+  flex-direction: column !important;
+  height: 9rem;
+  align-items: flex-start;
+}
+
+.divTagsRow {
+  flex-direction: row !important;
+  height: 5rem;
+} */
+
+.divNoteListItemCol {
+  padding: 0.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start;
+  width: 100%;
+
+}
+
+.divNoteListItemRow {
+  padding: 0.5rem;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+}
+
+@media (min-width:341px) and (max-width:800px) {
+  .divNoteListItemRow {
+    flex-direction: column !important;
+    align-items: flex-start;
+    width: 50vw;
+  }
+
+
+}
+
+@media (max-width:340px) {
+  .divNoteListItemRow {
+    flex-direction: column !important;
+    align-items: flex-start;
+    width: 50vw;
+  }
+
+  /* .divTagsRow {
+    flex-direction: column !important;
+    height: 9rem;
+  } */
+}
+
+.sc-ion-label-md-h {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 200px
 }
 
 
